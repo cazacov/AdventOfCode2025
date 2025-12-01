@@ -416,3 +416,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Inputs and puzzle texts are free to use, not free to copy
+input.txt
