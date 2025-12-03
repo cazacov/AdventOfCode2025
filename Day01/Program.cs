@@ -1,5 +1,6 @@
 ﻿namespace Day01
 {
+    //  Advent of Code 2025, day 1: https://adventofcode.com/2025/day/1
     internal class Program
     {
         static void Main(string[] args)

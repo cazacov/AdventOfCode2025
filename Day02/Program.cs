@@ -1,5 +1,6 @@
 ﻿namespace Day02
 {
+    //  Advent of Code 2025, day 2: https://adventofcode.com/2025/day/2
     internal class Program
     {
         public static void Main(string[] args)
@@ -28,14 +29,14 @@
             Console.WriteLine(result);
         }
 
-        private static bool IsInvalid(string render)
+        private static bool IsInvalid(string productID)
         {
-            if (render.Length % 2 != 0)
+            if (productID.Length % 2 != 0)
             {
                 return false;
             }
-            var halfLength = render.Length / 2;
-            return render[..halfLength] == render[halfLength..];
+            var halfLength = productID.Length / 2;
+            return productID[..halfLength] == productID[halfLength..];
         }
 
         private static void Puzzle2(List<Tuple<long, long>> input)
@@ -56,15 +57,15 @@
             Console.WriteLine(result);
         }
         
-        private static bool IsInvalid2(string render)
+        private static bool IsInvalid2(string productID)
         {
-            var l = render.Length;
+            var l = productID.Length;
             if (l < 2)
             {
                 return false;
             }
-            var c = render[0];
-            if (render.ToCharArray().All(x => x == c))
+            var c = productID[0];
+            if (productID.ToCharArray().All(x => x == c))
             {
                 return true;
             }
@@ -79,11 +80,11 @@
                 var partsCount = l / partLength;
                 for (var index = 0; index < partLength; index++)
                 {
-                    var cc = render[index];
+                    var cc = productID[index];
                     // compare first part char with corresponding chars in other parts
                     for (var partNo = 1; partNo < partsCount; partNo++)
                     {
-                        if (render[partNo * partLength + index] != cc)
+                        if (productID[partNo * partLength + index] != cc)
                         {
                             goto checkNextPartLength;
                         }
