@@ -1,13 +1,14 @@
 ﻿namespace Day05
 {
+    //  Advent of Code 2025, day 5: https://adventofcode.com/2025/day/5
     internal class Program
     {
         static void Main(string[] args)
         {
             Console.WriteLine("Advent of Code 2025, Day 5");
-            var input = ReadInput("input.txt");
-            Puzzle1(input.Item1, input.Item2);
-            Puzzle2(input.Item1);
+            var(fresh, all) = ReadInput("input.txt");
+            Puzzle1(fresh, all);
+            Puzzle2(fresh);
         }
 
         private static void Puzzle1(List<Range> ranges, List<long> all)
@@ -22,11 +23,11 @@
             foreach (var range in ranges)
             {
                 var newItem = range;
-                bool overlap = true;
+                var overlap = true;
                 while (overlap)
                 {
                     overlap = false;
-                    for (int i = 0; i < fresh.Count; i++)
+                    for (var i = 0; i < fresh.Count; i++)
                     {
                         var fr = fresh[i].from;
                         var to = fresh[i].to;
@@ -46,7 +47,7 @@
             Console.WriteLine(fresh.Sum(r => r.to - r.from + 1));
         }
 
-        private static Tuple<List<Range>, List<long>> ReadInput(string fileName)
+        private static (List<Range>, List<long>) ReadInput(string fileName)
         {
             var fresh = new List<Range>();
             var all = new List<long>();
@@ -55,16 +56,16 @@
             while (i < lines.Length && lines[i] != "")
             {
                 var parts = lines[i].Split('-');
-                fresh.Add(new Range(Int64.Parse(parts[0]), long.Parse(parts[1])));
+                fresh.Add(new Range(long.Parse(parts[0]), long.Parse(parts[1])));
                 i++;
             }
             i++;
             while (i < lines.Length)
             {
-                all.Add(Int64.Parse(lines[i]));
+                all.Add(long.Parse(lines[i]));
                 i++;
             }
-            return new Tuple<List<Range>, List<long>>(fresh, all);
+            return (fresh, all);
         }
     }
 }
