@@ -76,14 +76,14 @@ namespace Day06
             var index = 0;
             do
             {
-                var next = opLine.Substring(1).IndexOfAny("+*".ToCharArray(), index);
+                var next = opLine[1..].IndexOfAny("+*".ToCharArray(), index);
                 if (next == -1)
                 {
                     next = opLine.Length;
                 }
 
                 var values = new List<string>();
-                for (int i = 0; i < n; i++)
+                for (var i = 0; i < n; i++)
                 {
                     values.Add(lines[i].Substring(index, next - index));
                 }
