@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace Day07
+﻿namespace Day07
 {
     //  Advent of Code 2025, day 7: https://adventofcode.com/2025/day/7
     internal class Program
