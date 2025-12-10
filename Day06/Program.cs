@@ -1,7 +1,4 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using System.Security.Cryptography.X509Certificates;
-
-namespace Day06
+﻿namespace Day06
 {
     //  Advent of Code 2025, day 6: https://adventofcode.com/2025/day/6
     internal class Program
