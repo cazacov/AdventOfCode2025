@@ -83,43 +83,50 @@ namespace Day10
                 }
                 maxButtonClicks.Add(m);
             }
-
             var clicks = machine.Joltages.Sum();
             var clickHistory = Enumerable.Range(0, machine.Buttons.Count).Select(_ => 0).ToArray();
 
-            FindClicksRec(0, 0, ref clicks, machine.Buttons, maxButtonClicks, machine.Joltages.ToArray(), clickHistory);
+            var buttons = new List<int[]>();
+            foreach (var button in machine.Buttons)
+            {
+                var switches = new List<int>();
+                for (int j = 0; j < machine.Joltages.Count; j++)
+                {
+                    if ((button & (1 << j)) != 0)
+                    {
+                        switches.Add(j);
+                    }
+                }
+                buttons.Add(switches.ToArray());
+            }
+            FindClicksRec(0, 0, ref clicks, buttons, maxButtonClicks, machine.Joltages.ToArray() /*, clickHistory */);
             return clicks;
         }
 
-        private static void FindClicksRec(int index, int clicksSpent, ref int clicks, List<int> machineButtons,
-            List<int> maxButtonClicks, int[] joltages, int[] clickHistory)
+        private static void FindClicksRec(int index, int clicksSpent, ref int clicks, List<int[]> machineButtons,
+            List<int> maxButtonClicks, int[] joltages//, int[] clickHistory
+            )
         {
             var upper = Math.Min(clicks - clicksSpent, maxButtonClicks[index]);
-
+            var n = joltages.Length;
+            var buttons = machineButtons[index];
 
             for (int i = 0; i <= upper; i++)
             {
                 bool found = false;
-                for (int j = 0; j < joltages.Length; j++)
+                for (int j = 0; j < buttons.Length; j++)
                 {
-                    if ((machineButtons[index] & (1 << j)) != 0)
-                    {
-                        if (joltages[j] < i)
-                        {
-                            return;
-                        }
+                    if (joltages[buttons[j]] < i) {
+                        return;
                     }
                 }
 
-                clickHistory[index] = i;
-                for (int j = 0; j < joltages.Length; j++)
-                {
-                    if ((machineButtons[index] & (1 << j)) != 0)
-                    {
-                        joltages[j] -= i;
-                    }
-                }
+                //                clickHistory[index] = i;
 
+                for (int j = 0; j < buttons.Length; j++)
+                {
+                    joltages[buttons[j]] -= i;
+                }
                 if (joltages.All(j => j == 0))
                 {
                     var res = clicksSpent + i;
@@ -140,21 +147,18 @@ namespace Day10
                     }
                     Console.WriteLine();
                     */
-                    clickHistory[index] = 0;
+                    //clickHistory[index] = 0;
                 }
 
                 if (!found && index < machineButtons.Count - 1)
                 {
-                    FindClicksRec(index + 1, clicksSpent + i, ref clicks, machineButtons, maxButtonClicks, joltages, clickHistory);
+                    FindClicksRec(index + 1, clicksSpent + i, ref clicks, machineButtons, maxButtonClicks, joltages /*, clickHistory */);
                 }
-                for (int j = 0; j < joltages.Length; j++)
+                for (int j = 0; j < buttons.Length; j++)
                 {
-                    if ((machineButtons[index] & (1 << j)) != 0)
-                    {
-                        joltages[j] += i;
-                    }
+                    joltages[buttons[j]] += i;
                 }
-                clickHistory[index] = 0;
+                //clickHistory[index] = 0;
             }
         }
 
