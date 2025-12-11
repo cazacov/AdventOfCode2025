@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Day10
 {
@@ -17,6 +18,7 @@ namespace Day10
             Console.WriteLine("Advent of Code 2025, Day 10");
             var input = ReadInput("input.txt");
             Puzzle1(input);
+            Puzzle2(input);
         }
 
         private static void Puzzle1(List<Machine> machines)
@@ -55,6 +57,107 @@ namespace Day10
             return minClciks;
         }
 
+        private static void Puzzle2(List<Machine> machines)
+        {
+            Console.WriteLine($"Puzzle 2: {machines.Sum(m => JoltageClicks(m))}");
+        }
+
+        private static int JoltageClicks(Machine machine)
+        {
+            Console.Write(".");
+            var count = machine.Joltages.Count;
+            var maxButtonClicks = new List<int>();
+
+            foreach (var button in machine.Buttons)
+            {
+                var m = Int32.MaxValue;
+                for (var i = 0; i < count; i++)
+                {
+                    if ((button & (1 << i)) != 0)
+                    {
+                        if (m > machine.Joltages[i])
+                        {
+                            m = machine.Joltages[i];
+                        }
+                    }
+                }
+                maxButtonClicks.Add(m);
+            }
+
+            var clicks = machine.Joltages.Sum();
+            var clickHistory = Enumerable.Range(0, machine.Buttons.Count).Select(_ => 0).ToArray();
+
+            FindClicksRec(0, 0, ref clicks, machine.Buttons, maxButtonClicks, machine.Joltages.ToArray(), clickHistory);
+            return clicks;
+        }
+
+        private static void FindClicksRec(int index, int clicksSpent, ref int clicks, List<int> machineButtons,
+            List<int> maxButtonClicks, int[] joltages, int[] clickHistory)
+        {
+            var upper = Math.Min(clicks - clicksSpent, maxButtonClicks[index]);
+
+
+            for (int i = 0; i <= upper; i++)
+            {
+                bool found = false;
+                for (int j = 0; j < joltages.Length; j++)
+                {
+                    if ((machineButtons[index] & (1 << j)) != 0)
+                    {
+                        if (joltages[j] < i)
+                        {
+                            return;
+                        }
+                    }
+                }
+
+                clickHistory[index] = i;
+                for (int j = 0; j < joltages.Length; j++)
+                {
+                    if ((machineButtons[index] & (1 << j)) != 0)
+                    {
+                        joltages[j] -= i;
+                    }
+                }
+
+                if (joltages.All(j => j == 0))
+                {
+                    var res = clicksSpent + i;
+                    found = true;
+                    if (res < clicks)
+                    {
+                        clicks = res;
+                        Console.Write($"BEST {clicks}  ");
+                    }
+                    else
+                    {
+                        //Console.Write($"FOUND {clicks}  ");
+                    }
+                    /*
+                    for (int k = 0; k <= index; k++)
+                    {
+                        Console.Write($"{clickHistory[k]} ");
+                    }
+                    Console.WriteLine();
+                    */
+                    clickHistory[index] = 0;
+                }
+
+                if (!found && index < machineButtons.Count - 1)
+                {
+                    FindClicksRec(index + 1, clicksSpent + i, ref clicks, machineButtons, maxButtonClicks, joltages, clickHistory);
+                }
+                for (int j = 0; j < joltages.Length; j++)
+                {
+                    if ((machineButtons[index] & (1 << j)) != 0)
+                    {
+                        joltages[j] += i;
+                    }
+                }
+                clickHistory[index] = 0;
+            }
+        }
+
         private static List<Machine> ReadInput(string fileName)
         {
             var lines = File.ReadAllLines(fileName);
@@ -75,10 +178,15 @@ namespace Day10
                     var s = button[1..^1];
                     foreach (var bs in s.Split(','))
                     {
-                        var bit = Int32.Parse(bs);
+                        var bit = int.Parse(bs);
                         xorMask |= 1 << bit;
                     }
                     machine.Buttons.Add(xorMask);
+                }
+
+                foreach (var joltage in joltages.Split(","))
+                {
+                    machine.Joltages.Add(int.Parse(joltage));                    
                 }
                 result.Add(machine);
             }
