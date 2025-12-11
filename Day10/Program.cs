@@ -59,7 +59,13 @@ namespace Day10
 
         private static void Puzzle2(List<Machine> machines)
         {
-            Console.WriteLine($"Puzzle 2: {machines.Sum(m => JoltageClicks(m))}");
+            //var sum = machines.Sum(m => JoltageClicks(m));
+            var sum = machines
+                .AsParallel()
+                .WithDegreeOfParallelism(16)
+                .Sum(m => JoltageClicks(m));
+
+            Console.WriteLine($"Puzzle 2: {sum}");
         }
 
         private static int JoltageClicks(Machine machine)
@@ -87,7 +93,16 @@ namespace Day10
             var clickHistory = Enumerable.Range(0, machine.Buttons.Count).Select(_ => 0).ToArray();
 
             var buttons = new List<int[]>();
-            foreach (var button in machine.Buttons)
+            foreach (var button in machine.Buttons.OrderByDescending(b =>
+                     {
+                         int bitCount = 0;
+                         while (b > 0)
+                         {
+                             count += b & 1;
+                             b >>= 1;
+                         }
+                         return bitCount;
+                     }))
             {
                 var switches = new List<int>();
                 for (int j = 0; j < machine.Joltages.Count; j++)
@@ -110,17 +125,17 @@ namespace Day10
             var upper = Math.Min(clicks - clicksSpent, maxButtonClicks[index]);
             var n = joltages.Length;
             var buttons = machineButtons[index];
+            for (int j = 0; j < buttons.Length; j++)
+            {
+                if (joltages[buttons[j]] < upper)
+                {
+                    upper = joltages[buttons[j]];
+                }
+            }
 
-            for (int i = 0; i <= upper; i++)
+            for (int i = upper; i >= 0; i--)
             {
                 bool found = false;
-                for (int j = 0; j < buttons.Length; j++)
-                {
-                    if (joltages[buttons[j]] < i) {
-                        return;
-                    }
-                }
-
                 //                clickHistory[index] = i;
 
                 for (int j = 0; j < buttons.Length; j++)
@@ -150,7 +165,7 @@ namespace Day10
                     //clickHistory[index] = 0;
                 }
 
-                if (!found && index < machineButtons.Count - 1)
+                if (!found && index < machineButtons.Count - 1 && clicksSpent + i < clicks)
                 {
                     FindClicksRec(index + 1, clicksSpent + i, ref clicks, machineButtons, maxButtonClicks, joltages /*, clickHistory */);
                 }
