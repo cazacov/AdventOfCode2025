@@ -11,6 +11,7 @@ namespace Day11
             public List<String> Outs = new List<String>();
             public long PathCount = 0;
             public int Distance = Int32.MaxValue;
+            public int UnprocessedInputs = 0;
 
             public override bool Equals(object? obj)
             {
@@ -63,13 +64,53 @@ namespace Day11
             {
                 devices[target] = new Device() { Name = target};
             }
-            foreach (var device in devices.Values)
+            var mydevices = CleanList(devices, start, target);
+            foreach (var device in mydevices.Values)
+            {
+                device.UnprocessedInputs = mydevices.Values.Count(d => d.Outs.Contains(device.Name));
+            }
+            foreach (var device in mydevices.Values)
             {
                 device.Distance = Int32.MaxValue;
                 device.PathCount = 0;
             }
-            devices[start].PathCount = 1;
+            mydevices[start].PathCount = 1;
+            var todo = new HashSet<Device>() { mydevices[start] };
+            while (todo.Any())
+            {
+                var item = todo.OrderBy(x => x.UnprocessedInputs).First();
+                todo.Remove(item);
+                foreach (var outKey in item.Outs)
+                {
+                    var outItem = mydevices[outKey];
+                    var d = item.Distance + 1;
+                    if (outItem.Distance > d)
+                    {
+                        outItem.Distance = d;
+                    }
+                    outItem.PathCount += item.PathCount;
+                    outItem.UnprocessedInputs -= 1;
+                    todo.Add(outItem);
+                }
+            }
+
+            if (!mydevices.ContainsKey(target))
+            {
+                return 0;
+            }
+            var result = mydevices[target].PathCount;
+            return result;
+        }
+
+        private static Dictionary<string, Device> CleanList(Dictionary<string, Device> devices, string start, string target)
+        {
+           
+            foreach (var devicesValue in devices.Values)
+            {
+                devicesValue.Distance = Int32.MaxValue;
+            }
             var todo = new HashSet<Device>() { devices[start] };
+            devices[start].Distance = 0;
             while (todo.Any())
             {
                 var item = todo.OrderBy(x => x.Distance).First();
@@ -82,13 +123,16 @@ namespace Day11
                     {
                         outItem.Distance = d;
                     }
-                    outItem.PathCount += item.PathCount;
                     todo.Add(outItem);
                 }
             }
-
-            var result = devices[target].PathCount;
+            var result = new Dictionary<string, Device>();
+            foreach (var device in devices.Where(d => d.Value.Distance < Int32.MaxValue))
+            {
+                result[device.Key] = device.Value;
+            }
             return result;
+
         }
 
         private static Dictionary<string, Device> ReadInput(string fileName)
