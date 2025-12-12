@@ -8,9 +8,9 @@ namespace Day11
         public class Device
         {
             public string Name;
-            public List<String> Outs = new List<String>();
+            public List<string> Outs = new();
             public long PathCount = 0;
-            public int Distance = Int32.MaxValue;
+            public int Distance = int.MaxValue;
             public int UnprocessedInputs = 0;
 
             public override bool Equals(object? obj)
@@ -71,7 +71,6 @@ namespace Day11
             }
             foreach (var device in mydevices.Values)
             {
-                device.Distance = Int32.MaxValue;
                 device.PathCount = 0;
             }
             mydevices[start].PathCount = 1;
@@ -83,11 +82,6 @@ namespace Day11
                 foreach (var outKey in item.Outs)
                 {
                     var outItem = mydevices[outKey];
-                    var d = item.Distance + 1;
-                    if (outItem.Distance > d)
-                    {
-                        outItem.Distance = d;
-                    }
                     outItem.PathCount += item.PathCount;
                     outItem.UnprocessedInputs -= 1;
                     todo.Add(outItem);
